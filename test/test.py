@@ -52,7 +52,7 @@ class TestBase(unittest.TestCase):
 			for idx in range(count):
 				arguments['arguments'].append({'url': scope.url(str(idx)), 'arguments': []})
 			response = scope.send_request(arguments = arguments)
-			print(response)
+			print("count is "+str(count)+" and response is "+str(response))
 			verbose = ['', '']
 			verbose.append('Harness trying to send the following request to your service {0}'.format(arguments['url']))
 			verbose.append('')
