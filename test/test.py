@@ -114,85 +114,85 @@ class TestBase(unittest.TestCase):
 		return (self.get_traceparent(headers), self.get_tracestate(headers))
 
 class TraceContextTest(TestBase):
-	def test_both_traceparent_and_tracestate_missing(self):
-		'''
-		harness sends a request without traceparent or tracestate
-		expects a valid traceparent from the output header
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([])
-
-	def test_traceparent_included_tracestate_missing(self):
-		'''
-		harness sends a request with traceparent but without tracestate
-		expects a valid traceparent from the output header, with the same trace_id but different parent_id
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-01'],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-		self.assertNotEqual(traceparent.parent_id.hex(), '1234567890123456')
-
-	def test_traceparent_duplicated(self):
-		'''
-		harness sends a request with two traceparent headers
-		expects a valid traceparent from the output header, with a newly generated trace_id
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789011-1234567890123456-01'],
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-01'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789011')
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-	def test_traceparent_header_name(self):
-		'''
-		harness sends an invalid traceparent using wrong names
-		expects a valid traceparent from the output header, with a newly generated trace_id
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['trace-parent', '00-12345678901234567890123456789012-1234567890123456-01'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['trace.parent', '00-12345678901234567890123456789012-1234567890123456-01'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-	def test_traceparent_header_name_valid_casing(self):
-		'''
-		harness sends a valid traceparent using different combination of casing
-		expects a valid traceparent from the output header
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['TraceParent', '00-12345678901234567890123456789012-1234567890123456-01'],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['TrAcEpArEnT', '00-12345678901234567890123456789012-1234567890123456-01'],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['TRACEPARENT', '00-12345678901234567890123456789012-1234567890123456-01'],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-	def test_traceparent_version_0x00(self):
-		'''
-		harness sends an invalid traceparent with extra trailing characters
-		expects a valid traceparent from the output header, with a newly generated trace_id
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-01.'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-01-what-the-future-will-be-like'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	# def test_both_traceparent_and_tracestate_missing(self):
+	# 	'''
+	# 	harness sends a request without traceparent or tracestate
+	# 	expects a valid traceparent from the output header
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([])
+	#
+	# def test_traceparent_included_tracestate_missing(self):
+	# 	'''
+	# 	harness sends a request with traceparent but without tracestate
+	# 	expects a valid traceparent from the output header, with the same trace_id but different parent_id
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-01'],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	# 	self.assertNotEqual(traceparent.parent_id.hex(), '1234567890123456')
+	#
+	# def test_traceparent_duplicated(self):
+	# 	'''
+	# 	harness sends a request with two traceparent headers
+	# 	expects a valid traceparent from the output header, with a newly generated trace_id
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789011-1234567890123456-01'],
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-01'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789011')
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# def test_traceparent_header_name(self):
+	# 	'''
+	# 	harness sends an invalid traceparent using wrong names
+	# 	expects a valid traceparent from the output header, with a newly generated trace_id
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['trace-parent', '00-12345678901234567890123456789012-1234567890123456-01'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['trace.parent', '00-12345678901234567890123456789012-1234567890123456-01'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# def test_traceparent_header_name_valid_casing(self):
+	# 	'''
+	# 	harness sends a valid traceparent using different combination of casing
+	# 	expects a valid traceparent from the output header
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['TraceParent', '00-12345678901234567890123456789012-1234567890123456-01'],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['TrAcEpArEnT', '00-12345678901234567890123456789012-1234567890123456-01'],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['TRACEPARENT', '00-12345678901234567890123456789012-1234567890123456-01'],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# def test_traceparent_version_0x00(self):
+	# 	'''
+	# 	harness sends an invalid traceparent with extra trailing characters
+	# 	expects a valid traceparent from the output header, with a newly generated trace_id
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-01.'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-01-what-the-future-will-be-like'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
 
 	def test_traceparent_version_0xcc(self):
 		'''
@@ -214,622 +214,622 @@ class TraceContextTest(TestBase):
 		])
 		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
 
-	def test_traceparent_version_0xff(self):
-		'''
-		harness sends an invalid traceparent with version 255 (0xff)
-		expects a valid traceparent from the output header, with a newly generated trace_id
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', 'ff-12345678901234567890123456789012-1234567890123456-01'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-	def test_traceparent_version_illegal_characters(self):
-		'''
-		harness sends an invalid traceparent with illegal characters in version
-		expects a valid traceparent from the output header, with a newly generated trace_id
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '.0-12345678901234567890123456789012-1234567890123456-01'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '0.-12345678901234567890123456789012-1234567890123456-01'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-	def test_traceparent_version_too_long(self):
-		'''
-		harness sends an invalid traceparent with version more than 2 HEXDIG
-		expects a valid traceparent from the output header, with a newly generated trace_id
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '000-12345678901234567890123456789012-1234567890123456-01'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '0000-12345678901234567890123456789012-1234567890123456-01'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-	def test_traceparent_version_too_short(self):
-		'''
-		harness sends an invalid traceparent with version less than 2 HEXDIG
-		expects a valid traceparent from the output header, with a newly generated trace_id
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '0-12345678901234567890123456789012-1234567890123456-01'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-	def test_traceparent_trace_id_all_zero(self):
-		'''
-		harness sends an invalid traceparent with trace_id = 00000000000000000000000000000000
-		expects a valid traceparent from the output header, with a newly generated trace_id
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-00000000000000000000000000000000-1234567890123456-01'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '00000000000000000000000000000000')
-
-	def test_traceparent_trace_id_illegal_characters(self):
-		'''
-		harness sends an invalid traceparent with illegal characters in trace_id
-		expects a valid traceparent from the output header, with a newly generated trace_id
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-.2345678901234567890123456789012-1234567890123456-01'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '.2345678901234567890123456789012')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-1234567890123456789012345678901.-1234567890123456-01'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '1234567890123456789012345678901.')
-
-	def test_traceparent_trace_id_too_long(self):
-		'''
-		harness sends an invalid traceparent with trace_id more than 32 HEXDIG
-		expects a valid traceparent from the output header, with a newly generated trace_id
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-123456789012345678901234567890123-1234567890123456-01'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '123456789012345678901234567890123')
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-		self.assertNotEqual(traceparent.trace_id.hex(), '23456789012345678901234567890123')
-
-	def test_traceparent_trace_id_too_short(self):
-		'''
-		harness sends an invalid traceparent with trace_id less than 32 HEXDIG
-		expects a valid traceparent from the output header, with a newly generated trace_id
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-1234567890123456789012345678901-1234567890123456-01'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '1234567890123456789012345678901')
-
-	def test_traceparent_parent_id_all_zero(self):
-		'''
-		harness sends an invalid traceparent with parent_id = 0000000000000000
-		expects a valid traceparent from the output header, with a newly generated trace_id
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-0000000000000000-01'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-	def test_traceparent_parent_id_illegal_characters(self):
-		'''
-		harness sends an invalid traceparent with illegal characters in parent_id
-		expects a valid traceparent from the output header, with a newly generated trace_id
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-.234567890123456-01'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-123456789012345.-01'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-	def test_traceparent_parent_id_too_long(self):
-		'''
-		harness sends an invalid traceparent with parent_id more than 16 HEXDIG
-		expects a valid traceparent from the output header, with a newly generated trace_id
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-12345678901234567-01'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-	def test_traceparent_parent_id_too_short(self):
-		'''
-		harness sends an invalid traceparent with parent_id less than 16 HEXDIG
-		expects a valid traceparent from the output header, with a newly generated trace_id
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-123456789012345-01'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-	def test_traceparent_trace_flags_illegal_characters(self):
-		'''
-		harness sends an invalid traceparent with illegal characters in trace_flags
-		expects a valid traceparent from the output header, with a newly generated trace_id
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-.0'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-0.'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-	def test_traceparent_trace_flags_too_long(self):
-		'''
-		harness sends an invalid traceparent with trace_flags more than 2 HEXDIG
-		expects a valid traceparent from the output header, with a newly generated trace_id
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-001'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-	def test_traceparent_trace_flags_too_short(self):
-		'''
-		harness sends an invalid traceparent with trace_flags less than 2 HEXDIG
-		expects a valid traceparent from the output header, with a newly generated trace_id
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-1'],
-		])
-		self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-	def test_traceparent_ows_handling(self):
-		'''
-		harness sends an valid traceparent with heading and trailing OWS
-		expects a valid traceparent from the output header
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', ' 00-12345678901234567890123456789012-1234567890123456-01'],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '\t00-12345678901234567890123456789012-1234567890123456-01'],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-01 '],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-01\t'],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '\t 00-12345678901234567890123456789012-1234567890123456-01 \t'],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-	def test_tracestate_included_traceparent_missing(self):
-		'''
-		harness sends a request with tracestate but without traceparent
-		expects a valid traceparent from the output header
-		expects the tracestate to be discarded
-		'''
-		traceparent, tracestate1 = self.make_single_request_and_get_tracecontext([
-			['tracestate', 'foo=1'],
-		])
-		traceparent, tracestate2 = self.make_single_request_and_get_tracecontext([
-			['tracestate', 'foo=1,bar=2'],
-		])
-		self.assertEqual(len(tracestate1), len(tracestate2))
-
-	def test_tracestate_included_traceparent_included(self):
-		'''
-		harness sends a request with both tracestate and traceparent
-		expects a valid traceparent from the output header with the same trace_id
-		expects the tracestate to be inherited
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo=1,bar=2'],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-		self.assertEqual(tracestate['foo'], '1')
-		self.assertEqual(tracestate['bar'], '2')
-
-	def test_tracestate_header_name(self):
-		'''
-		harness sends an invalid tracestate using wrong names
-		expects the tracestate to be discarded
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['trace-state', 'foo=1'],
-		])
-		self.assertRaises(KeyError, lambda: tracestate['foo'])
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['trace.state', 'foo=1'],
-		])
-		self.assertRaises(KeyError, lambda: tracestate['foo'])
-
-	def test_tracestate_header_name_valid_casing(self):
-		'''
-		harness sends a valid tracestate using different combination of casing
-		expects the tracestate to be inherited
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['TraceState', 'foo=1'],
-		])
-		self.assertEqual(tracestate['foo'], '1')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['TrAcEsTaTe', 'foo=1'],
-		])
-		self.assertEqual(tracestate['foo'], '1')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['TRACESTATE', 'foo=1'],
-		])
-		self.assertEqual(tracestate['foo'], '1')
-
-	def test_tracestate_empty_header(self):
-		'''
-		harness sends a request with empty tracestate header
-		expects the tracestate to be discarded
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', ''],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo=1'],
-			['tracestate', ''],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-		self.assertEqual(tracestate['foo'], '1')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', ''],
-			['tracestate', 'foo=1'],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-		self.assertEqual(tracestate['foo'], '1')
-
-	def test_tracestate_multiple_headers_different_keys(self):
-		'''
-		harness sends a request with multiple tracestate headers, each contains different set of keys
-		expects a combined tracestate
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo=1,bar=2'],
-			['tracestate', 'rojo=1,congo=2'],
-			['tracestate', 'baz=3'],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-		self.assertTrue(str(tracestate).index('foo=1') < str(tracestate).index('bar=2'))
-		self.assertTrue(str(tracestate).index('bar=2') < str(tracestate).index('rojo=1'))
-		self.assertTrue(str(tracestate).index('rojo=1') < str(tracestate).index('congo=2'))
-		self.assertTrue(str(tracestate).index('congo=2') < str(tracestate).index('baz=3'))
-
-	@unittest.skipIf(STRICT_LEVEL < 2, "strict")
-	def test_tracestate_duplicated_keys(self):
-		'''
-		harness sends a request with an invalid tracestate header with duplicated keys
-		expects the tracestate to be discarded
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo=1,foo=1'],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-		self.assertRaises(KeyError, lambda: tracestate['foo'])
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo=1,foo=2'],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-		self.assertRaises(KeyError, lambda: tracestate['foo'])
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo=1'],
-			['tracestate', 'foo=1'],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-		self.assertRaises(KeyError, lambda: tracestate['foo'])
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo=1'],
-			['tracestate', 'foo=2'],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-		self.assertRaises(KeyError, lambda: tracestate['foo'])
-
-	def test_tracestate_all_allowed_characters(self):
-		'''
-		harness sends a request with a valid tracestate header with all legal characters
-		expects the tracestate to be inherited
-		'''
-		key_without_vendor = ''.join([
-			''.join(map(chr, range(0x61, 0x7A + 1))), # lcalpha
-			'0123456789', # DIGIT
-			'_',
-			'-',
-			'*',
-			'/',
-		])
-		key_with_vendor = key_without_vendor + '@a-z0-9_-*/'
-		value = ''.join([
-			''.join(map(chr, range(0x20, 0x2B + 1))),
-			''.join(map(chr, range(0x2D, 0x3C + 1))),
-			''.join(map(chr, range(0x3E, 0x7E + 1))),
-		])
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', key_without_vendor + '=' + value],
-		])
-		self.assertEqual(tracestate[key_without_vendor], value)
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', key_with_vendor + '=' + value],
-		])
-		self.assertEqual(tracestate[key_with_vendor], value)
-
-	def test_tracestate_ows_handling(self):
-		'''
-		harness sends a request with a valid tracestate header with OWS
-		expects the tracestate to be inherited
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo=1 \t , \t bar=2, \t baz=3'],
-		])
-		self.assertEqual(tracestate['foo'], '1')
-		self.assertEqual(tracestate['bar'], '2')
-		self.assertEqual(tracestate['baz'], '3')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo=1\t \t,\t \tbar=2,\t \tbaz=3'],
-		])
-		self.assertEqual(tracestate['foo'], '1')
-		self.assertEqual(tracestate['bar'], '2')
-		self.assertEqual(tracestate['baz'], '3')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', ' foo=1'],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-		self.assertEqual(tracestate['foo'], '1')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', '\tfoo=1'],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-		self.assertEqual(tracestate['foo'], '1')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo=1 '],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-		self.assertEqual(tracestate['foo'], '1')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo=1\t'],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-		self.assertEqual(tracestate['foo'], '1')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', '\t foo=1 \t'],
-		])
-		self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
-		self.assertEqual(tracestate['foo'], '1')
-
-	@unittest.skipIf(STRICT_LEVEL < 2, "strict")
-	def test_tracestate_key_illegal_characters(self):
-		'''
-		harness sends a request with an invalid tracestate header with illegal key
-		expects the tracestate to be discarded
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo =1'],
-		])
-		self.assertRaises(KeyError, lambda: tracestate['foo '])
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'FOO=1'],
-		])
-		self.assertRaises(KeyError, lambda: tracestate['FOO'])
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo.bar=1'],
-		])
-		self.assertRaises(KeyError, lambda: tracestate['foo.bar'])
-
-	@unittest.skipIf(STRICT_LEVEL < 2, "strict")
-	def test_tracestate_key_illegal_vendor_format(self):
-		'''
-		harness sends a request with an invalid tracestate header with illegal vendor format
-		expects the tracestate to be discarded
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo@=1,bar=2'],
-		])
-		self.assertRaises(KeyError, lambda: tracestate['bar'])
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', '@foo=1,bar=2'],
-		])
-		self.assertRaises(KeyError, lambda: tracestate['bar'])
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo@@bar=1,bar=2'],
-		])
-		self.assertRaises(KeyError, lambda: tracestate['bar'])
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo@bar@baz=1,bar=2'],
-		])
-		self.assertRaises(KeyError, lambda: tracestate['bar'])
-
-	@unittest.skipIf(STRICT_LEVEL < 2, "strict")
-	def test_tracestate_member_count_limit(self):
-		'''
-		harness sends a request with a valid tracestate header with 32 list members
-		expects the tracestate to be inherited
-
-		harness sends a request with an invalid tracestate header with 33 list members
-		expects the tracestate to be discarded
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'bar01=01,bar02=02,bar03=03,bar04=04,bar05=05,bar06=06,bar07=07,bar08=08,bar09=09,bar10=10'],
-			['tracestate', 'bar11=11,bar12=12,bar13=13,bar14=14,bar15=15,bar16=16,bar17=17,bar18=18,bar19=19,bar20=20'],
-			['tracestate', 'bar21=21,bar22=22,bar23=23,bar24=24,bar25=25,bar26=26,bar27=27,bar28=28,bar29=29,bar30=30'],
-			['tracestate', 'bar31=31,bar32=32'],
-		])
-		self.assertEqual(tracestate['bar01'], '01')
-		self.assertEqual(len(tracestate), 32)
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'bar01=01,bar02=02,bar03=03,bar04=04,bar05=05,bar06=06,bar07=07,bar08=08,bar09=09,bar10=10'],
-			['tracestate', 'bar11=11,bar12=12,bar13=13,bar14=14,bar15=15,bar16=16,bar17=17,bar18=18,bar19=19,bar20=20'],
-			['tracestate', 'bar21=21,bar22=22,bar23=23,bar24=24,bar25=25,bar26=26,bar27=27,bar28=28,bar29=29,bar30=30'],
-			['tracestate', 'bar31=31,bar32=32,bar33=33'],
-		])
-		self.assertRaises(KeyError, lambda: tracestate['bar01'])
-
-	@unittest.skipIf(STRICT_LEVEL < 2, "strict")
-	def test_tracestate_key_length_limit(self):
-		'''
-		harness sends tracestate header with a key of 256 and 257 characters
-		harness sends tracestate header with a key of 14 and 15 characters in the vendor section
-		harness sends tracestate header with a key of 241 and 242 characters in the tenant section
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo=1'],
-			['tracestate', 'z' * 256 + '=1'],
-		])
-		self.assertEqual(tracestate['foo'], '1')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo=1'],
-			['tracestate', 'z' * 257 + '=1'],
-		])
-		self.assertRaises(KeyError, lambda: tracestate['foo'])
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo=1'],
-			['tracestate', 't' * 241 + '@' + 'v' * 14 + '=1'],
-		])
-		self.assertEqual(tracestate['foo'], '1')
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo=1'],
-			['tracestate', 't' * 242 + '@v=1'],
-		])
-		self.assertRaises(KeyError, lambda: tracestate['foo'])
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo=1'],
-			['tracestate', 't@' + 'v' * 15 + '=1'],
-		])
-		self.assertRaises(KeyError, lambda: tracestate['foo'])
-
-	@unittest.skipIf(STRICT_LEVEL < 2, "strict")
-	def test_tracestate_value_illegal_characters(self):
-		'''
-		harness sends a request with an invalid tracestate header with illegal value format
-		expects the tracestate to be discarded
-		'''
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo=bar=baz'],
-		])
-		self.assertRaises(KeyError, lambda: tracestate['foo'])
-
-		traceparent, tracestate = self.make_single_request_and_get_tracecontext([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
-			['tracestate', 'foo=,bar=3'],
-		])
-		self.assertRaises(KeyError, lambda: tracestate['foo'])
-		self.assertRaises(KeyError, lambda: tracestate['bar'])
+	# def test_traceparent_version_0xff(self):
+	# 	'''
+	# 	harness sends an invalid traceparent with version 255 (0xff)
+	# 	expects a valid traceparent from the output header, with a newly generated trace_id
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', 'ff-12345678901234567890123456789012-1234567890123456-01'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# def test_traceparent_version_illegal_characters(self):
+	# 	'''
+	# 	harness sends an invalid traceparent with illegal characters in version
+	# 	expects a valid traceparent from the output header, with a newly generated trace_id
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '.0-12345678901234567890123456789012-1234567890123456-01'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '0.-12345678901234567890123456789012-1234567890123456-01'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# def test_traceparent_version_too_long(self):
+	# 	'''
+	# 	harness sends an invalid traceparent with version more than 2 HEXDIG
+	# 	expects a valid traceparent from the output header, with a newly generated trace_id
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '000-12345678901234567890123456789012-1234567890123456-01'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '0000-12345678901234567890123456789012-1234567890123456-01'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# def test_traceparent_version_too_short(self):
+	# 	'''
+	# 	harness sends an invalid traceparent with version less than 2 HEXDIG
+	# 	expects a valid traceparent from the output header, with a newly generated trace_id
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '0-12345678901234567890123456789012-1234567890123456-01'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# def test_traceparent_trace_id_all_zero(self):
+	# 	'''
+	# 	harness sends an invalid traceparent with trace_id = 00000000000000000000000000000000
+	# 	expects a valid traceparent from the output header, with a newly generated trace_id
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-00000000000000000000000000000000-1234567890123456-01'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '00000000000000000000000000000000')
+	#
+	# def test_traceparent_trace_id_illegal_characters(self):
+	# 	'''
+	# 	harness sends an invalid traceparent with illegal characters in trace_id
+	# 	expects a valid traceparent from the output header, with a newly generated trace_id
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-.2345678901234567890123456789012-1234567890123456-01'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '.2345678901234567890123456789012')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-1234567890123456789012345678901.-1234567890123456-01'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '1234567890123456789012345678901.')
+	#
+	# def test_traceparent_trace_id_too_long(self):
+	# 	'''
+	# 	harness sends an invalid traceparent with trace_id more than 32 HEXDIG
+	# 	expects a valid traceparent from the output header, with a newly generated trace_id
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-123456789012345678901234567890123-1234567890123456-01'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '123456789012345678901234567890123')
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '23456789012345678901234567890123')
+	#
+	# def test_traceparent_trace_id_too_short(self):
+	# 	'''
+	# 	harness sends an invalid traceparent with trace_id less than 32 HEXDIG
+	# 	expects a valid traceparent from the output header, with a newly generated trace_id
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-1234567890123456789012345678901-1234567890123456-01'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '1234567890123456789012345678901')
+	#
+	# def test_traceparent_parent_id_all_zero(self):
+	# 	'''
+	# 	harness sends an invalid traceparent with parent_id = 0000000000000000
+	# 	expects a valid traceparent from the output header, with a newly generated trace_id
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-0000000000000000-01'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# def test_traceparent_parent_id_illegal_characters(self):
+	# 	'''
+	# 	harness sends an invalid traceparent with illegal characters in parent_id
+	# 	expects a valid traceparent from the output header, with a newly generated trace_id
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-.234567890123456-01'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-123456789012345.-01'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# def test_traceparent_parent_id_too_long(self):
+	# 	'''
+	# 	harness sends an invalid traceparent with parent_id more than 16 HEXDIG
+	# 	expects a valid traceparent from the output header, with a newly generated trace_id
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-12345678901234567-01'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# def test_traceparent_parent_id_too_short(self):
+	# 	'''
+	# 	harness sends an invalid traceparent with parent_id less than 16 HEXDIG
+	# 	expects a valid traceparent from the output header, with a newly generated trace_id
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-123456789012345-01'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# def test_traceparent_trace_flags_illegal_characters(self):
+	# 	'''
+	# 	harness sends an invalid traceparent with illegal characters in trace_flags
+	# 	expects a valid traceparent from the output header, with a newly generated trace_id
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-.0'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-0.'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# def test_traceparent_trace_flags_too_long(self):
+	# 	'''
+	# 	harness sends an invalid traceparent with trace_flags more than 2 HEXDIG
+	# 	expects a valid traceparent from the output header, with a newly generated trace_id
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-001'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# def test_traceparent_trace_flags_too_short(self):
+	# 	'''
+	# 	harness sends an invalid traceparent with trace_flags less than 2 HEXDIG
+	# 	expects a valid traceparent from the output header, with a newly generated trace_id
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-1'],
+	# 	])
+	# 	self.assertNotEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# def test_traceparent_ows_handling(self):
+	# 	'''
+	# 	harness sends an valid traceparent with heading and trailing OWS
+	# 	expects a valid traceparent from the output header
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', ' 00-12345678901234567890123456789012-1234567890123456-01'],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '\t00-12345678901234567890123456789012-1234567890123456-01'],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-01 '],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-01\t'],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '\t 00-12345678901234567890123456789012-1234567890123456-01 \t'],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# def test_tracestate_included_traceparent_missing(self):
+	# 	'''
+	# 	harness sends a request with tracestate but without traceparent
+	# 	expects a valid traceparent from the output header
+	# 	expects the tracestate to be discarded
+	# 	'''
+	# 	traceparent, tracestate1 = self.make_single_request_and_get_tracecontext([
+	# 		['tracestate', 'foo=1'],
+	# 	])
+	# 	traceparent, tracestate2 = self.make_single_request_and_get_tracecontext([
+	# 		['tracestate', 'foo=1,bar=2'],
+	# 	])
+	# 	self.assertEqual(len(tracestate1), len(tracestate2))
+	#
+	# def test_tracestate_included_traceparent_included(self):
+	# 	'''
+	# 	harness sends a request with both tracestate and traceparent
+	# 	expects a valid traceparent from the output header with the same trace_id
+	# 	expects the tracestate to be inherited
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo=1,bar=2'],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	# 	self.assertEqual(tracestate['foo'], '1')
+	# 	self.assertEqual(tracestate['bar'], '2')
+	#
+	# def test_tracestate_header_name(self):
+	# 	'''
+	# 	harness sends an invalid tracestate using wrong names
+	# 	expects the tracestate to be discarded
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['trace-state', 'foo=1'],
+	# 	])
+	# 	self.assertRaises(KeyError, lambda: tracestate['foo'])
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['trace.state', 'foo=1'],
+	# 	])
+	# 	self.assertRaises(KeyError, lambda: tracestate['foo'])
+	#
+	# def test_tracestate_header_name_valid_casing(self):
+	# 	'''
+	# 	harness sends a valid tracestate using different combination of casing
+	# 	expects the tracestate to be inherited
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['TraceState', 'foo=1'],
+	# 	])
+	# 	self.assertEqual(tracestate['foo'], '1')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['TrAcEsTaTe', 'foo=1'],
+	# 	])
+	# 	self.assertEqual(tracestate['foo'], '1')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['TRACESTATE', 'foo=1'],
+	# 	])
+	# 	self.assertEqual(tracestate['foo'], '1')
+	#
+	# def test_tracestate_empty_header(self):
+	# 	'''
+	# 	harness sends a request with empty tracestate header
+	# 	expects the tracestate to be discarded
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', ''],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo=1'],
+	# 		['tracestate', ''],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	# 	self.assertEqual(tracestate['foo'], '1')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', ''],
+	# 		['tracestate', 'foo=1'],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	# 	self.assertEqual(tracestate['foo'], '1')
+	#
+	# def test_tracestate_multiple_headers_different_keys(self):
+	# 	'''
+	# 	harness sends a request with multiple tracestate headers, each contains different set of keys
+	# 	expects a combined tracestate
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo=1,bar=2'],
+	# 		['tracestate', 'rojo=1,congo=2'],
+	# 		['tracestate', 'baz=3'],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	# 	self.assertTrue(str(tracestate).index('foo=1') < str(tracestate).index('bar=2'))
+	# 	self.assertTrue(str(tracestate).index('bar=2') < str(tracestate).index('rojo=1'))
+	# 	self.assertTrue(str(tracestate).index('rojo=1') < str(tracestate).index('congo=2'))
+	# 	self.assertTrue(str(tracestate).index('congo=2') < str(tracestate).index('baz=3'))
+	#
+	# @unittest.skipIf(STRICT_LEVEL < 2, "strict")
+	# def test_tracestate_duplicated_keys(self):
+	# 	'''
+	# 	harness sends a request with an invalid tracestate header with duplicated keys
+	# 	expects the tracestate to be discarded
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo=1,foo=1'],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	# 	self.assertRaises(KeyError, lambda: tracestate['foo'])
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo=1,foo=2'],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	# 	self.assertRaises(KeyError, lambda: tracestate['foo'])
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo=1'],
+	# 		['tracestate', 'foo=1'],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	# 	self.assertRaises(KeyError, lambda: tracestate['foo'])
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo=1'],
+	# 		['tracestate', 'foo=2'],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	# 	self.assertRaises(KeyError, lambda: tracestate['foo'])
+	#
+	# def test_tracestate_all_allowed_characters(self):
+	# 	'''
+	# 	harness sends a request with a valid tracestate header with all legal characters
+	# 	expects the tracestate to be inherited
+	# 	'''
+	# 	key_without_vendor = ''.join([
+	# 		''.join(map(chr, range(0x61, 0x7A + 1))), # lcalpha
+	# 		'0123456789', # DIGIT
+	# 		'_',
+	# 		'-',
+	# 		'*',
+	# 		'/',
+	# 	])
+	# 	key_with_vendor = key_without_vendor + '@a-z0-9_-*/'
+	# 	value = ''.join([
+	# 		''.join(map(chr, range(0x20, 0x2B + 1))),
+	# 		''.join(map(chr, range(0x2D, 0x3C + 1))),
+	# 		''.join(map(chr, range(0x3E, 0x7E + 1))),
+	# 	])
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', key_without_vendor + '=' + value],
+	# 	])
+	# 	self.assertEqual(tracestate[key_without_vendor], value)
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', key_with_vendor + '=' + value],
+	# 	])
+	# 	self.assertEqual(tracestate[key_with_vendor], value)
+	#
+	# def test_tracestate_ows_handling(self):
+	# 	'''
+	# 	harness sends a request with a valid tracestate header with OWS
+	# 	expects the tracestate to be inherited
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo=1 \t , \t bar=2, \t baz=3'],
+	# 	])
+	# 	self.assertEqual(tracestate['foo'], '1')
+	# 	self.assertEqual(tracestate['bar'], '2')
+	# 	self.assertEqual(tracestate['baz'], '3')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo=1\t \t,\t \tbar=2,\t \tbaz=3'],
+	# 	])
+	# 	self.assertEqual(tracestate['foo'], '1')
+	# 	self.assertEqual(tracestate['bar'], '2')
+	# 	self.assertEqual(tracestate['baz'], '3')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', ' foo=1'],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	# 	self.assertEqual(tracestate['foo'], '1')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', '\tfoo=1'],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	# 	self.assertEqual(tracestate['foo'], '1')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo=1 '],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	# 	self.assertEqual(tracestate['foo'], '1')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo=1\t'],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	# 	self.assertEqual(tracestate['foo'], '1')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', '\t foo=1 \t'],
+	# 	])
+	# 	self.assertEqual(traceparent.trace_id.hex(), '12345678901234567890123456789012')
+	# 	self.assertEqual(tracestate['foo'], '1')
+	#
+	# @unittest.skipIf(STRICT_LEVEL < 2, "strict")
+	# def test_tracestate_key_illegal_characters(self):
+	# 	'''
+	# 	harness sends a request with an invalid tracestate header with illegal key
+	# 	expects the tracestate to be discarded
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo =1'],
+	# 	])
+	# 	self.assertRaises(KeyError, lambda: tracestate['foo '])
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'FOO=1'],
+	# 	])
+	# 	self.assertRaises(KeyError, lambda: tracestate['FOO'])
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo.bar=1'],
+	# 	])
+	# 	self.assertRaises(KeyError, lambda: tracestate['foo.bar'])
+	#
+	# @unittest.skipIf(STRICT_LEVEL < 2, "strict")
+	# def test_tracestate_key_illegal_vendor_format(self):
+	# 	'''
+	# 	harness sends a request with an invalid tracestate header with illegal vendor format
+	# 	expects the tracestate to be discarded
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo@=1,bar=2'],
+	# 	])
+	# 	self.assertRaises(KeyError, lambda: tracestate['bar'])
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', '@foo=1,bar=2'],
+	# 	])
+	# 	self.assertRaises(KeyError, lambda: tracestate['bar'])
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo@@bar=1,bar=2'],
+	# 	])
+	# 	self.assertRaises(KeyError, lambda: tracestate['bar'])
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo@bar@baz=1,bar=2'],
+	# 	])
+	# 	self.assertRaises(KeyError, lambda: tracestate['bar'])
+	#
+	# @unittest.skipIf(STRICT_LEVEL < 2, "strict")
+	# def test_tracestate_member_count_limit(self):
+	# 	'''
+	# 	harness sends a request with a valid tracestate header with 32 list members
+	# 	expects the tracestate to be inherited
+	#
+	# 	harness sends a request with an invalid tracestate header with 33 list members
+	# 	expects the tracestate to be discarded
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'bar01=01,bar02=02,bar03=03,bar04=04,bar05=05,bar06=06,bar07=07,bar08=08,bar09=09,bar10=10'],
+	# 		['tracestate', 'bar11=11,bar12=12,bar13=13,bar14=14,bar15=15,bar16=16,bar17=17,bar18=18,bar19=19,bar20=20'],
+	# 		['tracestate', 'bar21=21,bar22=22,bar23=23,bar24=24,bar25=25,bar26=26,bar27=27,bar28=28,bar29=29,bar30=30'],
+	# 		['tracestate', 'bar31=31,bar32=32'],
+	# 	])
+	# 	self.assertEqual(tracestate['bar01'], '01')
+	# 	self.assertEqual(len(tracestate), 32)
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'bar01=01,bar02=02,bar03=03,bar04=04,bar05=05,bar06=06,bar07=07,bar08=08,bar09=09,bar10=10'],
+	# 		['tracestate', 'bar11=11,bar12=12,bar13=13,bar14=14,bar15=15,bar16=16,bar17=17,bar18=18,bar19=19,bar20=20'],
+	# 		['tracestate', 'bar21=21,bar22=22,bar23=23,bar24=24,bar25=25,bar26=26,bar27=27,bar28=28,bar29=29,bar30=30'],
+	# 		['tracestate', 'bar31=31,bar32=32,bar33=33'],
+	# 	])
+	# 	self.assertRaises(KeyError, lambda: tracestate['bar01'])
+	#
+	# @unittest.skipIf(STRICT_LEVEL < 2, "strict")
+	# def test_tracestate_key_length_limit(self):
+	# 	'''
+	# 	harness sends tracestate header with a key of 256 and 257 characters
+	# 	harness sends tracestate header with a key of 14 and 15 characters in the vendor section
+	# 	harness sends tracestate header with a key of 241 and 242 characters in the tenant section
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo=1'],
+	# 		['tracestate', 'z' * 256 + '=1'],
+	# 	])
+	# 	self.assertEqual(tracestate['foo'], '1')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo=1'],
+	# 		['tracestate', 'z' * 257 + '=1'],
+	# 	])
+	# 	self.assertRaises(KeyError, lambda: tracestate['foo'])
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo=1'],
+	# 		['tracestate', 't' * 241 + '@' + 'v' * 14 + '=1'],
+	# 	])
+	# 	self.assertEqual(tracestate['foo'], '1')
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo=1'],
+	# 		['tracestate', 't' * 242 + '@v=1'],
+	# 	])
+	# 	self.assertRaises(KeyError, lambda: tracestate['foo'])
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo=1'],
+	# 		['tracestate', 't@' + 'v' * 15 + '=1'],
+	# 	])
+	# 	self.assertRaises(KeyError, lambda: tracestate['foo'])
+	#
+	# @unittest.skipIf(STRICT_LEVEL < 2, "strict")
+	# def test_tracestate_value_illegal_characters(self):
+	# 	'''
+	# 	harness sends a request with an invalid tracestate header with illegal value format
+	# 	expects the tracestate to be discarded
+	# 	'''
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo=bar=baz'],
+	# 	])
+	# 	self.assertRaises(KeyError, lambda: tracestate['foo'])
+	#
+	# 	traceparent, tracestate = self.make_single_request_and_get_tracecontext([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-00'],
+	# 		['tracestate', 'foo=,bar=3'],
+	# 	])
+	# 	self.assertRaises(KeyError, lambda: tracestate['foo'])
+	# 	self.assertRaises(KeyError, lambda: tracestate['bar'])
 
 class AdvancedTest(TestBase):
-	def test_multiple_requests_with_valid_traceparent(self):
-		'''
-		harness sends a valid traceparent and asks vendor service to callback multiple times
-		expects the trace_id to be inherited by all the callbacks
-		'''
-		trace_ids = set()
-		parent_ids = set()
-		for response in self.make_request([
-			['traceparent', '00-12345678901234567890123456789012-1234567890123456-01'],
-		], 3):
-			traceparent = self.get_traceparent(response['headers'])
-			trace_ids.add(traceparent.trace_id.hex())
-			parent_ids.add(traceparent.parent_id.hex())
-		self.assertEqual(len(trace_ids), 1)
-		self.assertTrue('12345678901234567890123456789012' in trace_ids)
-		self.assertEqual(len(parent_ids), 3)
-
-	def test_multiple_requests_without_traceparent(self):
-		'''
-		harness asks vendor service to callback multiple times
-		expects a different parent_id each time
-		'''
-		trace_ids = set()
-		parent_ids = set()
-		for response in self.make_request([], 3):
-			traceparent = self.get_traceparent(response['headers'])
-			trace_ids.add(traceparent.trace_id.hex())
-			parent_ids.add(traceparent.parent_id.hex())
-		self.assertEqual(len(parent_ids), 3)
+	# def test_multiple_requests_with_valid_traceparent(self):
+	# 	'''
+	# 	harness sends a valid traceparent and asks vendor service to callback multiple times
+	# 	expects the trace_id to be inherited by all the callbacks
+	# 	'''
+	# 	trace_ids = set()
+	# 	parent_ids = set()
+	# 	for response in self.make_request([
+	# 		['traceparent', '00-12345678901234567890123456789012-1234567890123456-01'],
+	# 	], 3):
+	# 		traceparent = self.get_traceparent(response['headers'])
+	# 		trace_ids.add(traceparent.trace_id.hex())
+	# 		parent_ids.add(traceparent.parent_id.hex())
+	# 	self.assertEqual(len(trace_ids), 1)
+	# 	self.assertTrue('12345678901234567890123456789012' in trace_ids)
+	# 	self.assertEqual(len(parent_ids), 3)
+	#
+	# def test_multiple_requests_without_traceparent(self):
+	# 	'''
+	# 	harness asks vendor service to callback multiple times
+	# 	expects a different parent_id each time
+	# 	'''
+	# 	trace_ids = set()
+	# 	parent_ids = set()
+	# 	for response in self.make_request([], 3):
+	# 		traceparent = self.get_traceparent(response['headers'])
+	# 		trace_ids.add(traceparent.trace_id.hex())
+	# 		parent_ids.add(traceparent.parent_id.hex())
+	# 	self.assertEqual(len(parent_ids), 3)
 
 	def test_multiple_requests_with_illegal_traceparent(self):
 		'''
